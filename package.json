@@ -1,0 +1,22 @@
+{
+  "name": "stabilityai-image-gen",
+  "version": "1.0.0",
+  "description": "a node app that generates images using stability.ai (stablediffusion)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eliotmatrva/stabilityai-image-gen.git"
+  },
+  "author": "ME",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eliotmatrva/stabilityai-image-gen/issues"
+  },
+  "homepage": "https://github.com/eliotmatrva/stabilityai-image-gen#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
+}
