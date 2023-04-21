@@ -13,6 +13,35 @@ console.log(url + endpoints.imageGen);
 
 let engineId = 'stable-diffusion-xl-beta-v2-2-2';
 
+function getTimeStamp(){
+    let today = new Date();
+    let month = today.getMonth() + 1;
+    if (month < 10){
+        month = `0${month}`;
+    }
+    let day = today.getDate();
+    if (day < 10) {
+        day = `0${day}`;
+    }
+    let year = today.getFullYear();
+    //console.log(`simple date is ${month}/${day}/${year}`);
+    let hour = today.getHours();
+    let minute = today.getMinutes();
+    let seconds = today.getSeconds();
+    if (seconds < 10 ) {
+        seconds = `0${seconds}`
+    }
+    if (minute < 10) {
+        minute = `0${minute}`
+    }
+    if (hour < 10) {
+        hour = `0${hour}`
+    }
+    //console.log(`simple time is ${hour}:${minute}:${seconds}`);
+    let todayFormatted = `${month}${day}${year}-${hour}${minute}${seconds}`;
+    return todayFormatted;
+}
+
 function base64_decode(base64Image, file) {
     fs.writeFileSync(file,base64Image);
      console.log('******** File created from base64 encoded string ********');
@@ -36,7 +65,7 @@ async function generateImage(engineId, prompt) {
         "samples": 1,
         "steps": 30,
         "text_prompts": [{
-            "text": "A lighthouse on a cliff",
+            "text": "a wise old female sage",
             "weight": 1
         }]
     });
@@ -49,7 +78,7 @@ async function generateImage(engineId, prompt) {
     let data = await response.json();
     fs.writeFileSync('base64Encoded.txt', data.artifacts[0].base64, {encoding: 'base64'});
 
-    fs.writeFile('image.png', data.artifacts[0].base64, {encoding: 'base64'}, function(err) {
+    fs.writeFile(`image${getTimeStamp()}.png`, data.artifacts[0].base64, {encoding: 'base64'}, function(err) {
     });
     // base64_decode(data,'generatedImage.jpg');
     console.log(data.artifacts[0].base64);
