@@ -1,6 +1,5 @@
 require('dotenv').config();
 const fs = require('fs');
-//console.log(process.env.stabilityApiKey);
 
 let url = 'https://api.stability.ai';
 let endpoints = {
@@ -24,7 +23,6 @@ function getTimeStamp(){
         day = `0${day}`;
     }
     let year = today.getFullYear();
-    //console.log(`simple date is ${month}/${day}/${year}`);
     let hour = today.getHours();
     let minute = today.getMinutes();
     let seconds = today.getSeconds();
@@ -37,23 +35,22 @@ function getTimeStamp(){
     if (hour < 10) {
         hour = `0${hour}`
     }
-    //console.log(`simple time is ${hour}:${minute}:${seconds}`);
-    let todayFormatted = `${month}${day}${year}-${hour}${minute}${seconds}`;
-    return todayFormatted;
-}
+    return `${month}${day}${year}-${hour}${minute}${seconds}`;
 
-function base64_decode(base64Image, file) {
-    fs.writeFileSync(file,base64Image);
-     console.log('******** File created from base64 encoded string ********');
-  
-  }
+}
 
 let reqHeaders = new Headers();
     reqHeaders.append('Authorization', `Bearer ${process.env.stabilityApiKey}`);
     reqHeaders.append('Content-Type', 'application/json');
 
 // discord links for generate image:  https://discord.com/channels/1002292111942635562/1042896447311454361/1096559685974368298
+let imagePrompt = "geometrically patterned stained glass window where the glass pieces have mayan symbols";
 
+function writeIndexFile(indexJson, prompt, timeStamp){
+    let promptFileIndex = JSON.parse(fs.readFileSync(indexJson));
+    promptFileIndex.push({ imageFileName: `image${timeStamp}.png`, prompt: `${prompt}`});
+    fs.writeFileSync(indexJson, JSON.stringify(promptFileIndex));
+}
 
 async function generateImage(engineId, prompt) {
     console.log(`engine id is ${engineId}`)
@@ -65,7 +62,7 @@ async function generateImage(engineId, prompt) {
         "samples": 1,
         "steps": 30,
         "text_prompts": [{
-            "text": "a wise old female sage",
+            "text": prompt,
             "weight": 1
         }]
     });
@@ -76,12 +73,14 @@ async function generateImage(engineId, prompt) {
     }
     let response = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image', options);
     let data = await response.json();
-    fs.writeFileSync('base64Encoded.txt', data.artifacts[0].base64, {encoding: 'base64'});
-
+    //fs.writeFileSync('base64Encoded.txt', data.artifacts[0].base64, {encoding: 'base64'});
+    let timeStamp = getTimeStamp();
+    writeIndexFile('prompt-and-file-index.json', prompt, timeStamp);
     fs.writeFile(`image${getTimeStamp()}.png`, data.artifacts[0].base64, {encoding: 'base64'}, function(err) {
     });
+    console.log(`image${getTimeStamp()}.png generated and saved!`)
     // base64_decode(data,'generatedImage.jpg');
-    console.log(data.artifacts[0].base64);
+    //console.log(data.artifacts[0].base64);
 }
 
 async function getEngines(){
@@ -94,5 +93,5 @@ async function getEngines(){
     console.log(data);
 }
 
-generateImage('stable-diffusion-xl-beta-v2-2-2', 'a full body image of a wise old female sage');
+generateImage('stable-diffusion-xl-beta-v2-2-2', imagePrompt);
 
