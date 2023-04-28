@@ -52,7 +52,7 @@ let reqHeaders = new Headers();
     reqHeaders.append('Content-Type', 'application/json');
 
 // discord links for generate image:  https://discord.com/channels/1002292111942635562/1042896447311454361/1096559685974368298
-let imagePrompt = "a real photograph of a funny fat man playing at the beach";
+let imagePrompt = "A dr seuss style character, cartoon, smiling, zen buddhism";
 
 function writeIndexFile(indexJson, prompt, timeStamp){
     let promptFileIndex = JSON.parse(fs.readFileSync(indexJson));
@@ -68,7 +68,7 @@ async function generateImage(engineId, prompt) {
         "height": 512,
         "width": 512,
         "samples": 1,
-        "steps": 40,
+        "steps": 50,
         "text_prompts": [{
             "text": prompt,
             "weight": 1
@@ -84,7 +84,7 @@ async function generateImage(engineId, prompt) {
     //fs.writeFileSync('base64Encoded.txt', data.artifacts[0].base64, {encoding: 'base64'});
     let timeStamp = getTimeStamp();
     writeIndexFile('prompt-and-file-index.json', prompt, timeStamp);
-    fs.writeFile(`image${getTimeStamp()}.png`, data.artifacts[0].base64, {encoding: 'base64'}, function(err) {
+    fs.writeFile(`image${getTimeStamp()}.png`, data.artifacts[0].base64, {encoding: 'base64'}, function(err) {`error during writeFile: "${err}"`
     });
     console.log(`image${getTimeStamp()}.png generated and saved!`)
     // base64_decode(data,'generatedImage.jpg');
@@ -101,7 +101,7 @@ async function getEngines(){
     console.log(data);
 }
 
-// generateImage('stable-diffusion-xl-beta-v2-2-2', imagePrompt);
+generateImage('stable-diffusion-xl-beta-v2-2-2', imagePrompt);
 
 app.get('/api/getLatestImage', async (req, res) => {
     let imageList = JSON.parse(fs.readFileSync('./prompt-and-file-index.json', 'utf8'));
@@ -118,7 +118,10 @@ app.get('/api/getLatestImage', async (req, res) => {
     };
     let sorted = imageList.sort(compareFileNames);
     console.log(JSON.stringify(sorted[0]));
-    res.send(JSON.stringify(sorted[0]));
+    //let encodedImage = fs.readFileSync(`./${sorted[0].imageFileName}`, 'base64');
+    //console.log(encodedImage);
+    //res.send(JSON.stringify(sorted[0]));
+    res.sendFile(`${sorted[0].imageFileName}`, {root: '.'});
 })
 
 app.listen(PORT, () => {
